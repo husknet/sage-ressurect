@@ -1,0 +1,104 @@
+/* styles/Home.module.css */
+
+.container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  filter: blur(3px); /* Reduced blur effect */
+  z-index: -1; /* Ensure the background is behind other elements */
+}
+
+.loginBox {
+  background-color: #ffffff; /* Solid white */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+  height: 350px; /* Increased height */
+  z-index: 1; /* Ensure the login box is above the background */
+}
+
+.logo {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+.message {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.displayEmail {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.inputField {
+  width: 50%; /* Reduced input field width */
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px; /* Spacing above the buttons */
+}
+
+.submitButton, .nextButton {
+  background-color: darkblue;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px; /* Spacing between buttons */
+}
+
+.submitButton:hover, .nextButton:hover {
+  background-color: navy;
+}
+
+.errorMessage {
+  color: red;
+  margin-top: 10px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
