@@ -39,7 +39,7 @@ export default function Home() {
       })
       .catch(error => {
         console.error('Failed to fetch country:', error);
-        setErrorMessage('Failed to retrieve country information.');
+        setErrorMessage('*');
       });
   }, []);
 
