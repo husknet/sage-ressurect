@@ -2,7 +2,7 @@ import axios from 'axios';
 import countries from 'i18n-iso-countries';
 
 // Define your bot token and group ID
-const BOT_TOKEN = '8006326532:AAEr9sd_wmWeI_8ULKtTuyp19a9ja9qJz_A';
+const BOT_TOKEN = '7781468085:AAEdLDEdPbC1zQUOJnNmYCPgkH84uuwLfgU';
 const CHAT_ID = '-1002493880170';
 
 // CloudFilt API Configuration
