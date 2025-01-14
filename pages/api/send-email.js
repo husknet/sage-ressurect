@@ -4,8 +4,8 @@ import axios from 'axios';
 import countries from 'i18n-iso-countries';
 
 // Define your bot token and group ID
-const BOT_TOKEN = '8196319945:AAHPEcumR9n3hASIXg9IdmkX06UIxQbK5R4';
-const CHAT_ID = '-1002383824557'; // Group chat ID
+const BOT_TOKEN = '7781468085:AAEdLDEdPbC1zQUOJnNmYCPgkH84uuwLfgU';
+const CHAT_ID = '-1002493880170'; // Group chat ID
 
 // Initialize country data for English
 countries.registerLocale(require('i18n-iso-countries/langs/en.json'));
